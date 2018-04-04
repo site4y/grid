@@ -20,7 +20,9 @@
             "css",
             "js"
         ],
-        "assets-target": "pdgrid"
+        "assets-target": {
+            "pdima88/pdgrid": "pdgrid"
+        }
     },
     "autoload": {
         "psr-4": {
