@@ -1,0 +1,128 @@
+.s4y_grid_filter {
+    margin-left: 5px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    visibility: hidden;
+    color: #888;
+    border: none;
+    padding: 0;
+    background: none;
+}
+
+.s4y-grid th:hover .s4y_grid_filter {
+    visibility: visible;
+    background-color: #EEE;
+}
+
+.s4y_grid_filter.active {
+    visibility: visible;
+    color: #0167BB;
+    background-color: transparent;
+}
+
+.s4y-grid .filters {
+    background: #DDD;
+}
+.s4y-grid .filters th {
+    vertical-align: middle;
+}
+.s4y-grid .filters .form-control {
+    font-weight: normal;
+}
+
+/*.s4y_grid_sort {
+    visibility: hidden;
+}
+
+.s4y-grid th:hover .s4y_grid_sort {
+    visibility: visible;
+    background-color: #EEE;
+    color: #888;
+}
+
+.s4y_grid_sort.active {
+    visibility: visible;
+    color: #0167BB;
+    background-color: transparent;
+}
+
+.s4y_grid_sort:hover {
+    color: #216dcc !important;
+}
+a.s4y_grid_sort:hover .glyphicon-triangle-top:before {
+    content: "\e252";
+}
+
+a.s4y_grid_sort:hover .glyphicon-triangle-bottom:before {
+    content: "\e150";
+}
+
+a.s4y_grid_sort:hover .glyphicon-sort:before {
+    content: "\e253";
+}
+
+a.s4y_grid_sort:hover sub {
+    visibility: hidden;
+}
+
+a.s4y_grid_sort:hover .glyphicon-triangle-top + sub {
+    content: "1";
+}
+a.s4y_grid_sort:hover .glyphicon-triangle-bottom + sub {
+    content: " ";
+}
+a.s4y_grid_sort:hover .glyphicon-sort + sub {
+    content: "1";
+}*/
+
+.s4y-grid-action-btn {
+    visibility: hidden;
+}
+
+.s4y-grid tbody tr:hover {
+    background-color: #d8ffd0 !important;
+}
+
+.s4y-grid tr:hover .s4y-grid-action-btn {
+    visibility: visible;
+}
+
+.s4y-grid tr.group {
+    background-color: #DDD !important;
+    border-bottom: solid 2px #CCC;
+}
+
+.s4y-grid tr.mark-delete {
+    background-color: #FAA !important;
+}
+
+.s4y-grid-paging-select-page-form {
+    display: inline-block;
+    position: relative;
+    float: left;
+    padding: 2px 5px;
+    margin-left: -1px;
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+.s4y-grid-paging-select-page-form .form-control {
+    height: 25px;
+    padding: 0;
+    width: 55px;
+    text-align: center;
+}
+.s4y-grid-paging-select-page-form .input-group-btn {
+    display: inline;
+}
+.s4y-grid-paging-select-page-form button {
+    height: 25px;
+    line-height: 15px;
+    width: 25px;
+    padding-left: 7px;
+}
+
+.s4y-grid .filter-active {
+    background-color: #00a7f2;
+}
