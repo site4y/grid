@@ -15,14 +15,11 @@
             "email": "pdima88@mail.ru"
         }
     ],
-    "config": {
+    "extra": {
         "assets-files": [
             "css",
             "js"
-        ],
-        "assets-target": {
-            "pdima88/pdgrid": "pdgrid"
-        }
+        ]
     },
     "autoload": {
         "psr-4": {
