@@ -18,7 +18,8 @@
     "extra": {
         "assets-files": [
             "css",
-            "js"
+            "js",
+            "img"
         ]
     },
     "autoload": {

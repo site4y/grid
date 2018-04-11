@@ -580,7 +580,7 @@ class Grid {
         if (!isset($this->_filters[$colId])) {
             if (isset($this->columns[$colId]) &&
                 isset($this->columns[$colId]['filter'])) {
-                $this->_filters[$colId] = S4Y_Grid_Filter::create($this, $colId);
+                $this->_filters[$colId] = Filter::create($this, $colId);
             }
         }
         return isset($this->_filters[$colId]) ? $this->_filters[$colId] : false;
