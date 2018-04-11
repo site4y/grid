@@ -3,8 +3,8 @@
     "description": "PHP Data Grid Widget with using Zend Db v1",
     "type": "library",
     "require": {
-        "frontpack/composer-assets-plugin": "^0.9.3",
-        "pdima88/php-assets": "^1.0",
+        "frontpack/composer-assets-plugin": "^0.9.4",
+        "pdima88/php-assets": "^2.2",
         "nette/utils": "^2.5",
         "pdima88/php-twbshelper": "dev-master"
     },
