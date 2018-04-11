@@ -1,21 +1,21 @@
 <?php
 
-namespace pdima88\pdgrid\Filter;
+namespace pdima88\pdgrid;
 
-use pdima88\pdgrid\Grid;
-
-abstract class Base {
-    static function create($name, &$column) {
+abstract class Filter {
+    static function create($grid, $name) {
+        $column = $grid->columns[$name];
         $type = $column['filter'];
-
-        if (class_exists('S4Y_Grid_Filter_'.ucfirst($type))) {
-            $className = 'S4Y_Grid_Filter_'.ucfirst($type);
+        
+        if (isset(Grid::$filter[$type]) &&
+            class_exists(Grid::$filter[$type])) {
+            $className = Grid::$filter[$type];
         } elseif (class_exists($type)) {
             $className = $type;
         } else {
-            throw new Exception('Filter '.$type.' not defined!');
+            throw new \Exception('Filter '.$type.' not defined!');
         }
-        $filter = new $className($name);
+        $filter = new $className($grid, $name);
         $filter->init($column);
         return $filter;
     }
@@ -37,7 +37,6 @@ abstract class Base {
         return isset(self::$_filters[$name]) ? self::$_filters[$name] : null;
     }
 
-    /** @var Grid */
     protected $_grid = null;
     protected $_name = '';
     protected $_value = null;

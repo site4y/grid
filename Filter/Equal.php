@@ -2,11 +2,12 @@
 
 namespace pdima88\pdgrid\Filter;
 
-use pdima88\pdgrid\Filter\Base as BaseFilter;
+use pdima88\pdgrid\Filter;
 use Nette\Utils\Html;
 
-class Equal extends BaseFilter
+class Equal extends Filter
 {
+
     public function init(&$column)
     {
         if ($this->hasRequestParam()) {
@@ -18,15 +19,14 @@ class Equal extends BaseFilter
     {
         $input = Html::el('input')->type('text')
             ->name('filter_'.$this->_name)
-            ->class("form-control input-sm")
-            ->data('filter', $this->_name);
+            ->setClass("form-control input-sm");
+        $input->{'data-filter'} = $this->_name;
         if ($this->isActive()) $input->value($this->_value);
 
-        return Html::el('div',
-            $input .
-            Html::el('span')->class('form-control-clear glyphicon glyphicon-remove'.
-                ($this->isActive() ? '' : ' hidden'))->filterId($this->_name)
-        )->_class('has-clear');
+        return Html::el('div')->addHtml(
+            $input)->addHtml(
+            Html::el('span')->setClass('form-control-clear glyphicon glyphicon-remove hidden'))
+        ->setClass('has-clear');
 
     }
 
@@ -38,8 +38,10 @@ class Equal extends BaseFilter
     function getWhere()
     {
         if ($this->isActive()) {
+            $db = \Zend_Db_Table::getDefaultAdapter();
             $v = $this->_value;
-            return Grid::$db->quoteIdentifier($this->_name) . ' = ' .Grid::$db->quote($v);
+            return $db->quoteIdentifier($this->_name) . ' = ' .
+            $db->quote($v);
         }
         return '';
     }

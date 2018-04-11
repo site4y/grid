@@ -6,7 +6,7 @@ use pdima88\pdgrid\Filter;
 use pdima88\php\Assets;
 use Nette\Utils\Html;
 
-class Filter_Text extends Filter
+class Text extends Filter
 {
     protected $dataList = null;
     protected $dataListId = null;
@@ -19,7 +19,7 @@ class Filter_Text extends Filter
             $this->_value = $this->getRequestParam();
         }
 
-        Assets::getInstance()->addScript('
+        Assets::addScript('
             function S4Y_grid_filter_text_help() {
                 eModal.alert("Для поиска по шаблону используйте в тексте:<br>" +
                     "<b>знаки процента %</b> - любое количество (в.т.ч. и 0), любых символов<br>" +
@@ -32,7 +32,7 @@ class Filter_Text extends Filter
                     "обратной косой черты - \\\\%, \\\\_<br><br>" +
                     "Чтобы найти все пустые поля используйте шаблон _<br>чтобы найти все непустые поля - %",
                     "Фильтр по тексту: подсказка");
-            } 
+            }
         ', self::class .':js');
 
         if (isset($column['filterList'])) {
@@ -56,44 +56,33 @@ class Filter_Text extends Filter
 
     function renderFilter()
     {
-        $input = Html::el('input')
-            ->type('text')
+        $input = Html::el('input')->type('text')
             ->name('filter_'.$this->_name)
-            ->class("form-control input-sm")
-            ->data('filter', $this->_name);
-        if ($this->isActive()) $input->value($this->_value);
-
-        $div = Html::el('div');
-
-        $div->addHtml($input);
+            ->setClass("form-control input-sm");
+        $input->{'data-filter'} = $this->_name;
 
         if ($this->dataList) {
             $input->list($this->dataListId);
             /** @var Html $dl */
-            $dl = Html::el('datalist')
-                ->id($this->dataListId);
+            $dl = Html::el('datalist')->id($this->dataListId);
             foreach ($this->dataList as $s) {
                 $dl->addHtml(
                     Html::el('option')->value($s)
                 );
             }
-            $div->addHtml($dl);
-        }
+        } else $dl = '';
 
-        $div->addHtml(
-            Html::el('span')->class('form-control-clear glyphicon glyphicon-remove'.
-                ($this->isActive() ? '' : ' hidden')
-            )->filterId($this->_name)
-        );
+        if ($this->isActive()) $input->value($this->_value);
 
-        $div->addHtml(
-            Html::el('a')->class('form-control-feedback glyphicon glyphicon-question-sign')
+        return Html::el('div')->addHtml(
+            $input.$dl)->addHtml(
+            Html::el('span')->setClass('form-control-clear glyphicon glyphicon-remove hidden')
+                ->filterId($this->_name))
+            ->addHtml(
+            Html::el('a')->setClass('form-control-feedback glyphicon glyphicon-question-sign')
                 ->onclick('S4Y_grid_filter_text_help()')
-        );
+        )->setClass('has-clear has-feedback feedback-hidden');
 
-        $div->class('has-clear has-feedback feedback-hidden');
-
-        return $div;
     }
 
     function isActive()
@@ -104,8 +93,9 @@ class Filter_Text extends Filter
     function getWhere()
     {
         if ($this->isActive()) {
+            $db = \Zend_Db_Table::getDefaultAdapter();
             $v = $this->_value;
-            if ($v == '_') return $this->_grid->$d->quoteIdentifier($this->_name) . ' IS NULL OR '
+            if ($v == '_') return $db->quoteIdentifier($this->_name) . ' IS NULL OR '
                                  .$db->quoteIdentifier($this->_name).' = \'\'';
             $vc = str_replace('\\%', '', $v);
             if (strpos($vc, '%') === false) $v = '%'.$v.'%';

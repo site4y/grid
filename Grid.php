@@ -2,22 +2,25 @@
 
 namespace pdima88\pdgrid;
 
+use pdima88\php\Assets;
 use Nette\Utils\Html;
+use pdima88\twbsHelper\Glyphicon;
+use pdima88\twbsHelper\TwbsBtn;
 
 /**
- * pdima88\pdgrid\Grid
+ * S4Y_Grid admin component
  * ------------------------
  * Компонент грид(таблица) предназначен для админки, для вывода списка элементов
  * в табличном виде с функциями сортировки, фильтрации, постраничной навигации,
  * ссылками для создания, редактирования и удаления элементов
  *
- * @author 2016-2017 Пучкин Дмитрий
+ * (с) 2016-2018 Пучкин Дмитрий
  *
  * # Использование:
  * Создайте грид, передав в конструктор необходимые параметры
  * (см. ниже **Список параметров**)
  * ```
- * $grid = new \pdima88\pdgrid\Grid( <ассоциативный массив с параметрами> );
+ * $grid = new S4Y_Grid( <ассоциативный массив с параметрами> );
  * ```
  * и выведите грид в нужном месте страницы:
  * ```
@@ -132,10 +135,24 @@ use Nette\Utils\Html;
  * - select - Выбор одного из нескольких значений, список берется из свойства format, которое должно быть массивом
  * - dateRange - Фильтр по диапазону дат
  *
- * Все фильтры представлены отдельными классами, наследованными от базового {@see Filter}
+ * Все фильтры представлены отдельными классами, наследованными от базового {@see S4Y_Grid_Filter}
  */
 
 class Grid {
+
+    const ACTION_BTN_CLASS = 's4y-grid-action-btn';
+
+    static $filter = [
+        'dateRange' => '\\pdima88\\pdgrid\\Filter\\DateRange',
+        'daterange' => '\\pdima88\\pdgrid\\Filter\\DateRange',
+        'date-range' => '\\pdima88\\pdgrid\\Filter\\DateRange',
+        'equal' => '\\pdima88\\pdgrid\\Filter\\Equal',
+        'select' => '\\pdima88\\pdgrid\\Filter\\Select',
+        'text' => '\\pdima88\\pdgrid\\Filter\\Text',
+    ];
+    static $export = [
+        'excel' => '\\pdima88\\pdgrid\\Export\\Excel'
+    ];
 
     protected $_id = '';
     protected $_pg;
@@ -148,12 +165,7 @@ class Grid {
     protected $_filterParam = null;
     protected $_row = [];
     protected $_data = false;
-
-    /** @var Assets */
-    public $assets;
-
-    /** @var \Zend_Db_Adapter_Mysqli */
-    public $db;
+    public $assets = null;
 
     public $options = [
         'ajax' => '',
@@ -180,7 +192,7 @@ class Grid {
 
     function __construct($attr = array())
     {
-
+        $this->assets = new Assets();
         $this->options['url'] = $_SERVER['REQUEST_URI'];
         foreach ($this->options as $key => $value) {
             if (isset($attr[$key])) {
@@ -202,7 +214,7 @@ class Grid {
         }
 
         $this->_pg = new Paginator(
-            ($this->_data !== false) ? $this->_data : S4Y::getDb(),
+            ($this->_data !== false) ? $this->_data : \Zend_Db_Table::getDefaultAdapter(),
             null, $this->options['paging']);
 
         if ($this->options['paging'] || $this->options['footer']) {
@@ -235,7 +247,7 @@ class Grid {
     public function row($row)
     {
         $this->_row = $row;
-        $rowid = $row['id'];
+        $rowid = isset($row['id']) ? $row['id'] : 0;
         $r = '';
         if ($this->options['rownum']) {
             $r .= '<th class="text-right" style="padding-left: 10px;padding-right: 10px;white-space: nowrap;width:1px">'.$this->_rownum++.'</th>';
@@ -248,8 +260,7 @@ class Grid {
 
         if (!isset($this->_deleteBtnTpl)) {
             if ($this->options['delete']) {
-                $this->_deleteBtnTpl =  Html::button(Html::span()->_class("glyphicon glyphicon-remove"))
-                    ->_class("s4y-grid-action-btn btn btn-danger btn-xs")
+                $this->_deleteBtnTpl = TwbsBtn::dangerXs(Glyphicon::remove, self::ACTION_BTN_CLASS)
                     ->onclick("return $.S4Y.grid.confirmDelete(this)")
                     ->title("Удалить");
             } else {
@@ -281,8 +292,7 @@ class Grid {
         $array = is_array($this->options['edit']);
         if (!isset($this->_editBtnTpl)) {
             if ($this->options['edit'] !== '' && $this->options['edit'] !== false) {
-                $this->_editBtnTpl = Html::a(Html::span()->_class('glyphicon glyphicon-edit'))
-                    ->_class('s4y-grid-action-btn btn btn-warning btn-xs')
+                $this->_editBtnTpl = TwbsBtn::a_warningXs(Glyphicon::edit, self::ACTION_BTN_CLASS)
                     ->title("Редактировать");
                 if($array) {
                     foreach ($this->options['edit'] as $key=>$v){
@@ -310,19 +320,17 @@ class Grid {
         if (isset($this->options['group']['edit']) ||
             isset($this->options['group']['delete'])) {
             $colCount --;
-            $actions = Html::td()->_style('width:1px;white-space:nowrap');
+            $actions = Html::el('td', ['style' => 'width:1px;white-space:nowrap']);
             if (isset($this->options['group']['edit'])) {
-                $actions->contain_(
-                    Html::a(Html::span()->_class('glyphicon glyphicon-edit'))
+                $actions->addHtml(
+                    TwbsBtn::a_warningXs(Glyphicon::edit, self::ACTION_BTN_CLASS)
                         ->href($this->replace($this->options['group']['edit'], ['id' => $group]))
-                        ->_class('s4y-grid-action-btn btn btn-warning btn-xs')
                         ->title("Редактировать")
                 );
             }
             if (isset($this->options['group']['delete'])) {
-                $actions->contain_(
-                    Html::button(Html::span()->_class("glyphicon glyphicon-remove"))
-                        ->_class("s4y-grid-action-btn btn btn-danger btn-xs")
+                $actions->addHtml(
+                    TwbsBtn::dangerXs(Glyphicon::remove, self::ACTION_BTN_CLASS)
                         ->onclick("return $.S4Y.grid.confirmDeleteGroup(this)")
                         ->title("Удалить")
                 );
@@ -354,11 +362,10 @@ class Grid {
 
         if (is_array($row)) $content = $this->replace($content, $row);
 
-        $tr =  Html::tr(
-            Html::th($content)->colspan($colCount),
+        $tr =  Html::el('tr', ['class' => 'group'])->addHtml(
+            Html::el('th')->addHtml($content)->colspan($colCount). ' ' .
             $actions
-        )->_class('group');
-        $tr['data-groupid'] = $group;
+        )->data('groupid', $group);
         return $tr;
     }
 
@@ -437,7 +444,7 @@ class Grid {
     {
         $head = '';
         if ($this->options['rownum']) {
-            $rownumTh = Html::th()->_style('width:1px');
+            $rownumTh = Html::el('th', ['style' => 'width:1px']);
             if (isset($this->options['rownum']['header']['rowspan'])) {
                 $rownumTh->rowspan($this->options['rownum']['header']['rowspan']);
             }
@@ -573,7 +580,7 @@ class Grid {
         if (!isset($this->_filters[$colId])) {
             if (isset($this->columns[$colId]) &&
                 isset($this->columns[$colId]['filter'])) {
-                $this->_filters[$colId] = Filter::create($colId, $this->columns[$colId]);
+                $this->_filters[$colId] = S4Y_Grid_Filter::create($this, $colId);
             }
         }
         return isset($this->_filters[$colId]) ? $this->_filters[$colId] : false;
@@ -614,21 +621,21 @@ class Grid {
                 }
             }
         }
-        $html = new Html();
-        $link = $html->a($title);
+
+        $link = Html::el('a', $title);
 
         $link->href = $this->url(['sort' => $sort]);
         $link->onclick = "return $.S4Y.grid.sort(this, '{$colId}')";
-        $link['data-column-id'] = $colId;
-        $link->_class('pdgrid_sort');
-        if ($sort_order > 0) $link->_class('active');
+        $link->{'data-column-id'} = $colId;
+        $link->setClass('s4y_grid_sort');
+        if ($sort_order > 0) $link->appendAttribute('class', 'active');
 
-        if ($icon != 'sort') $link->contain_(' ',
-             $html->i()->_class('glyphicon')->_class('glyphicon-'.$icon)
+        if ($icon != 'sort') $link->addHtml(' '.
+             Glyphicon::icon($icon)
         );
 
         if ($this->options['multisort'] && $sort_order > 0 && $i > 1) {
-            $link->contain_($html->sub($sort_order));
+            $link->addHtml(Html::el('sub', $sort_order));
         }
 
         return $link;
@@ -659,9 +666,9 @@ class Grid {
         $col = &$this->columns[$colId];
         $colClass = str_replace(',','',$colId);
         $className = 's4y-grid-'.$this->_id.'-col-'.$colClass;
-        $html = new Html();
-        $th = $html->th()->_class($className);
-        $td = $html->td()->_class($className);
+
+        $th = Html::el('th', ['class' => $className]);
+        $td = Html::el('td', ['class' => $className]);
         $tdstyle = Assets::newStyle();
         $thstyle = Assets::newStyle();
 
@@ -691,17 +698,17 @@ class Grid {
         $tdstyle->save('td.'.$className);
         $thstyle->save('th.'.$className);
 
-        $th->contain_($this->_colHeader($colId));
+        $th->addHtml($this->_colHeader($colId));
 
         if (isset($col['href'])) {
-            $a = $html->a('%%content%%')->href($col['href']);
+            $a = Html::el('a', '%%content%%')->href($col['href']);
             if (isset($col['hrefTarget'])) $a->target($col['hrefTarget']);
-            $td->contain_($a);
+            $td->addHtml($a);
         } else {
-            $td->contain_('%%content%%');
+            $td->addText('%%content%%');
         }
-        $col['td'] = $td->__toString();
-        $col['th'] = $th->__toString();
+        $col['td'] = strval($td);
+        $col['th'] = strval($th);
     }
 
     protected function _prepareSort() {
@@ -809,11 +816,12 @@ class Grid {
             foreach ($this->columns as $colId => &$col) {
                 $filter = $this->getFilter($colId);
                 if ($filter !== false && $filter->isActive()) {
+                    $db = \Zend_Db_Table::getDefaultAdapter();
                     $v = $filter->getValue();
                     if ($this->_filterParam != '') $this->_filterParam .= ';';
                     $this->_filterParam .= $filter->getName() . ':';
                     if (is_numeric($v)) $this->_filterParam .= $v;
-                    else $this->_filterParam .= self::$db->quote($v);
+                    else $this->_filterParam .= $db->quote($v);
                 }
             }
             unset ($col);
@@ -824,8 +832,8 @@ class Grid {
     public function render() {
 
         Assets::add(['bootstrap', 'eModal',
-            '/files/s4y/grid.css', '/files/s4y/grid.js',
-            '/js/jquery/plugins/loadingoverlay.js']);
+            '/assets/pdima88/pdgrid/css/grid.css', '/assets/pdima88/pdgrid/js/grid.js',
+            '/assets/pdima88/pdgrid/js/loadingoverlay.js']);
 
         //$table = '<div class="panel panel-default"><div class="panel-heading">'.
         //    $this->getAddBtn(). '</div>';
@@ -835,40 +843,39 @@ class Grid {
             $colCount++;
         }
 
-        $table = Html::el('table',
-            Html::el('thead', $this->header()).
-            Html::el('tbody', $this->body())
-        )
-            ->id('pdgrid_'.$this->_id)
-            ->data('multisort', $this->options['multisort'])
-            ->class('table table-condensed table-bordered table-striped s4y-grid')
-            ->data('url', $this->options['url']);
+        $table = Html::el('table')->addHtml(
+            Html::el('thead')->addHtml($this->header()).
+            Html::el('tbody')->addHtml($this->body())
+        );
 
-        if ($this->options['ajax']) $table->data('ajax', $this->options['ajax']);
-        $table->data('current-url', $this->url());
+        $table->id = 's4y_grid_'.$this->_id;
+        $table->{'data-multisort'} = $this->options['multisort'];
+        $table->{'class'} = 'table table-condensed table-bordered table-striped s4y-grid';
+        $table->{'data-url'} = $this->options['url'];
+        if ($this->options['ajax']) $table->{'data-ajax'} = $this->options['ajax'];
+        $table->{'data-current-url'} = $this->url();
         if ($this->options['ajax']) {
-            $table->data('current-url-ajax', $this->url([], true));
-            $table->data('default-sort', $this->_defaultSort());
+            $table->{'data-current-url-ajax'} = $this->url([], true);
+            $table->{'data-default-sort'} = $this->_defaultSort();
         }
-        $table->data('delete-url', $this->options['delete']);
-        if ($this->options['ajax-delete']) $table->data('delete-ajax-url', $this->options['ajax-delete']);
+        $table->{'data-delete-url'} = $this->options['delete'];
+        if ($this->options['ajax-delete']) $table->{'data-delete-ajax-url'} = $this->options['ajax-delete'];
 
         if ($this->options['group'] && isset($this->options['group']['delete'])) {
-            $table->data('deletegroup-url', $this->options['group']['delete']);
+            $table->{'data-deletegroup-url'} = $this->options['group']['delete'];
         }
 
         if ($this->options['group'] && isset($this->options['group']['ajax-delete'])) {
-            $table->data('deletegroup-ajax-url', $this->options['group']['ajax-delete']);
+            $table->{'data-deletegroup-ajax-url'} = $this->options['group']['ajax-delete'];
         }
 
         if ($this->options['ajaxSetUrl']) {
-            $table->data('ajax-set-url', 'true');
+            $table->{'data-ajax-set-url'} = 'true';
         }
 
         if ($this->options['footer']) {
-            $table->addHtml(Html::el('tfoot',
-                Html::tr(
-                    $html->td(
+            $table->addHtml(Html::el('tfoot')->addHtml(
+                Html::el('tr')->addHtml(Html::el('td',
                         'Отображены записи с '. $this->_pg->first,
                         ' по '. $this->_pg->last .
                         '. Всего записей: '. $this->_pg->count
@@ -877,11 +884,10 @@ class Grid {
             ));
         }
 
-        return $html->form(
-                $table
-            )->id('pdgrid_'.$this->_id.'_filter_form')
+        return Html::el('form')->addHtml($table)
+            ->id('s4y_grid_'.$this->_id.'_filter_form')
              ->action($this->url())->method('POST').
-            $this->renderPaging();
+            $this->renderPaging().$this->assets->js();
     }
 
     public function ajax() {
@@ -893,7 +899,7 @@ class Grid {
             'last' => $this->_pg->last,
             'page' => $this->_pg->page,
             'paging' => $this->renderPaging(),
-            'script' => Assets::outputJsOnAjax()
+            'script' => $this->assets->js()
         ];
         echo json_encode($result);
         exit;
@@ -902,7 +908,7 @@ class Grid {
     public function export($type, $title = '', $filename = 'export', $full = true) {
         $export = Export::create($type, $this);
         if ($full) {
-            $rows = $this->_data ? $this->_data : self::$db->fetchAll($this->_sql);
+            $rows = $this->_data ? $this->_data : \Zend_Db_Table::getDefaultAdapter()->fetchAll($this->_sql);
         } else {
             $rows = $this->_pg->fetchAll($this->_sql);
         }
@@ -911,8 +917,7 @@ class Grid {
     }
 
     protected function _renderPageLink($page, $url, $label = null, $onclick = null) {
-        $html = new Html();
-        $li = $html->li();
+        $li = Html::el('li');
         $class = '';
         if ($this->_pg->page == $page) $class = 'active';
         if ($page < 1) {
@@ -923,16 +928,18 @@ class Grid {
             $class = 'disabled';
             $page = $this->_pg->pageCount;
         }
-        if ($class !== '') $li->_class($class);
+        if ($class !== '') $li->setClass($class);
 
         if ($this->_pg->page != $page) {
-            $li[] = $html->a($label ?: $page)->href(str_replace(urlencode('{page}'), $page, $url))
-                    ->onclick($onclick ?: "return $.pdgrid.gotoPage('{$this->_id}', '{$page}')");
+            $a = Html::el('a')
+                    ->addHtml($label ?: $page)
+                    ->href(str_replace(urlencode('{page}'), $page, $url))
+                    ->onclick($onclick ?: "return $.S4Y.grid.gotoPage('{$this->_id}', '{$page}')");
         } else {
-            $li[] = $html->a($label ?: $page)->href('#');
+            $a = Html::el('a')->addHtml($label ?: $page)->href('#');
         }
 
-        return strval($li);
+        return strval($li->addHtml($a));
     }
 
     public function renderPaging()
@@ -944,9 +951,8 @@ class Grid {
         $count_prev = 4;
         $count_next = 5;
         $count_last = 1;
-        $html = new Html();
 
-        $ul = $html->ul()->_class('pagination');
+        $ul = Html::el('ul', ['class' => 'pagination']);
 
         if ($this->_pg->pageCount > 1) {
 
@@ -960,7 +966,7 @@ class Grid {
                 for ($i = 1; $i <= $count_first; $i++) {
                     $ul[] = $this->_renderPageLink($i, $url);
                 }
-                $ul[] = $this->_renderPageLink($count_first + 1, $url, '..', 'return $.pdgrid.selectPage("'.$this->_id.'", this, '.($count_first + 1).', '.$this->_pg->pageCount.')');
+                $ul[] = $this->_renderPageLink($count_first + 1, $url, '..', 'return $.S4Y.grid.selectPage("'.$this->_id.'", this, '.($count_first + 1).', '.$this->_pg->pageCount.')');
             }
             $end = min($this->_pg->pageCount, max($page + $count_next, $count_first + $count_prev + $count_next + 1));
             if ($end >= $this->_pg->pageCount - $count_last - 1) $end = $this->_pg->pageCount;
@@ -968,7 +974,7 @@ class Grid {
                 $ul[] = $this->_renderPageLink($i, $url);
             }
             if ($end < $this->_pg->pageCount) {
-                $ul[] = $this->_renderPageLink($end + 1, $url, '..', 'return $.pdgrid.selectPage("'.$this->_id.'", this, '.($end + 1).','.$this->_pg->pageCount.')');
+                $ul[] = $this->_renderPageLink($end + 1, $url, '..', 'return $.S4Y.grid.selectPage("'.$this->_id.'", this, '.($end + 1).','.$this->_pg->pageCount.')');
                 for ($i = $this->_pg->pageCount - $count_last + 1; $i <= $this->_pg->pageCount; $i++) {
                     $ul[] = $this->_renderPageLink($i, $url);
                 }
@@ -977,7 +983,8 @@ class Grid {
             $ul[] = $this->_renderPageLink($page + 1, $url, 'Вперед &raquo;');
         }
 
-        return strval($html->nav($ul)->id('pdgrid_'.$this->_id.'_paging')->_class("text-center"));
+        return strval(Html::el('nav', ['class' => "text-center"])->addHtml($ul)
+            ->id('s4y_grid_'.$this->_id.'_paging'));
     }
 
     protected function unparse_url($parsed_url) {
@@ -1049,13 +1056,9 @@ class Grid {
 
     public function getAddBtn() {
         if ($this->options['add']) {
-            $addBtn = Html::a(
-                Html::span()->_class('glyphicon glyphicon-plus'),
-                '  Добавить'
-            );
-            $addBtn->href = $this->replace($this->options['add']);
-            $addBtn['data-addurl'] = $this->options['add'];
-            $addBtn->_class('btn btn-success s4y-grid-'.$this->_id.'-addbtn');
+            $addBtn = TwbsBtn::a_success(Glyphicon::plus.'  Добавить',  's4y-grid-'.$this->_id.'-addbtn');
+            $addBtn->href($this->replace($this->options['add']));
+            $addBtn->{'data-addurl'} = $this->options['add'];
             return strval($addBtn);
         }
         return '';
@@ -1064,32 +1067,32 @@ class Grid {
     public function getExportBtn() {
         if ($this->options['export'] !== false) {
 
-            $btn = Html::el('a');
-            $btn->addHtml('<i class="glyphicon glyphicon-share"></i>  Экспорт');
-            $btn->class('btn btn-default');
+            $btn = TwbsBtn::a_def(
+                Glyphicon::share.'  Экспорт'
+            );
 
             if (is_array($this->options['export'])) {
-                $ul = Html::el('ul')->class('dropdown-menu');
+                $ul = Html::el('ul', ['class' => 'dropdown-menu']);
                 if ($this->options['export_menu_right']) {
-                    $ul->class[] = 'dropdown-menu-right';
+                    $ul->appendAttribute('class', 'dropdown-menu-right');
                 }
                 foreach ($this->options['export'] as $title => $url) {
-                    $a = Html::el('a', $title)->href(
+                    $a = Html::el('a',$title)->href(
                         $this->appendSortAndFilterParams($this->replace(
-                            $url, ['page' => $this->_pg->page]))
-                    )->class('pdgrid-'.$this->_id.'-export');
-                    $a->data('url', $url);
-                    $ul->addHtml(Html::el('li', $a));
+                            $url, ['page' => $this->_pg->page])))
+                        ->{'class'}('s4y-grid-'.$this->_id.'-export');
+                    $a->{'data-url'} = $url;
+                    $ul[] = Html::el('li')->addHtml($a);
                 }
-                $btn->class[] = 'dropdown-toggle';
+                $btn->{'class'}('dropdown-toggle');
                 $btn->data('toggle', "dropdown");
-                $btn->addHtml(' '.Html::el('span')->class('caret'));
-                $div = Html::el('div', $btn.$ul)->class('btn-group');
+                $btn->addHtml(' '.Html::el('span', ['class' => 'caret']));
+                $div = Html::el('div', ['class' => 'btn-group'])->addHtml($btn. $ul);
                 return strval($div);
             } else {
                 $btn->href = $this->replace($this->options['export']);
-                $btn->data('url', $this->options['export']);
-                $btn->class('pdgrid-'.$this->_id.'-export');
+                $btn->{'data-url'} = $this->options['export'];
+                $btn->addClass('s4y-grid-'.$this->_id.'-export');
                 return strval($btn);
             }
         }

@@ -2,11 +2,12 @@
 
 namespace pdima88\pdgrid\Filter;
 
-use pdima88\pdgrid\Filter\Base as BaseFilter;
+use pdima88\pdgrid\Filter;
 use pdima88\php\Assets;
 use Nette\Utils\Html;
+use pdima88\twbsHelper\Glyphicon;
 
-class DateRange extends BaseFilter {
+class DateRange extends Filter {
 
     protected $_start = null;
     protected $_end = null;
@@ -21,37 +22,30 @@ class DateRange extends BaseFilter {
             $this->_value = $this->getRequestParam();
         }
         if (isset($column['filter-opens'])) $this->_opens = $column['filter-opens'];
-        if (isset($column['filterOpens'])) $this->_opens = $column['filterOpens'];
 
         Assets::add([
             'bootstrap-daterangepicker',
-            '/assets/pdgrid/dateutils.js'
+            '/assets/pdima88/pdgrid/js/dateutils.js'
         ]);
     }
 
     function renderFilter()
     {
-        $span =  Html::el('span')
-            ->style('font-size: 11px')
-            ->data('filter', $this->_name)
-            ->data('empty', '');
-        
-        $div = Html::el('div')->id($this->_id);
-        $div['class'] = 'form-control input-sm s4y-grid-filter-daterange';
-        $div->style('overflow: hidden; cursor: pointer; text-overflow: ellipsis;white-space: nowrap')
+        $span =  Html::el('span')->style('font-size: 11px;');
+        $span->{'data-filter'} = $this->_name;
+        $span->{'data-empty'} = '';
+        $div = Html::el('div')->id($this->_id)
+                ->setClass('form-control input-sm s4y-grid-filter-daterange')
+                ->style('overflow: hidden; cursor: pointer; text-overflow: ellipsis;white-space: nowrap')
                 //->style('background: #fff;  padding: 5px 10px; border: 1px solid #ccc; width: 100%')
-        $div->addHtml(
-            '<i class="glyphicon glyphicon-calendar"></i>
-             <b class="caret" style="float: right; margin-top: 7px">'
-        );
-        $div->addHtml($span);
-
-        $input = Html::el('input')
-            ->type('hidden')
-            ->name('filter_'.$this->_name)
-            ->data('filter', $this->_name)
-            ->id($this->_id.'_input');
-
+                ->addHtml(
+                    Glyphicon::calendar)
+                ->addHtml(
+                    Html::el('b')->setClass('caret')->style('float: right; margin-top: 7px'))
+                ->addHtml($span);
+        $input = Html::el('input')->type('hidden')->name('filter_'.$this->_name);
+        $input->{'data-filter'} = $this->_name;
+        $input->id($this->_id.'_input');
         if ($this->isActive()) {
             if ($this->_value == 'NULL' || $this->_value == 'NOT NULL') {
                 $input->value($this->_value);
@@ -65,7 +59,7 @@ class DateRange extends BaseFilter {
             }
         }
 
-        $this->_grid->assets->addScript('
+        $this->_grid->assets->script('
             $(function() {
                 moment.locale("ru");
                 $("#'.$this->_id.'").daterangepicker({
@@ -154,7 +148,7 @@ class DateRange extends BaseFilter {
                     $("#'.$this->_id.' span").text(txt).attr("title", txt);
                 }
             });
-        ',$this->_id, true);
+        ',$this->_id);
 
         return strval($div).$input;
     }
@@ -178,11 +172,13 @@ class DateRange extends BaseFilter {
     function getWhere()
     {
         if ($this->isActive()) {
+            $db = \Zend_Db_Table::getDefaultAdapter();
+
             if ($this->_value == 'NULL') {
-                return Grid::$db->quoteIdentifier($this->_name) .
+                return $db->quoteIdentifier($this->_name) .
                 ' IS NULL';
             } elseif ($this->_value == 'NOT NULL') {
-                return Grid::$db->quoteIdentifier($this->_name) .
+                return $db->quoteIdentifier($this->_name) .
                 ' IS NOT NULL';
             } else {
                 list($startDate, $endDate) = $this->getRange();
@@ -190,8 +186,8 @@ class DateRange extends BaseFilter {
                 $start = date('Y-m-d', $startDate) . ' 00:00:00';
                 $end = date('Y-m-d', $endDate) . ' 23:59:59';
 
-                return Grid::$db->quote($this->_name) .
-                ' BETWEEN ' . Grid::$db->quote($start) . ' AND ' . Grid::$db->quote($end);
+                return $db->quoteIdentifier($this->_name) .
+                ' BETWEEN ' . $db->quote($start) . ' AND ' . $db->quote($end);
             }
         }
         return '';

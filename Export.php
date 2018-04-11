@@ -1,18 +1,19 @@
 <?php
 
-namespace pdima88\pdgrid\Export;
+namespace pdima88\pdgrid;
 
-abstract class Base
+abstract class Export
 {
     protected $_grid = null;
 
     static function create($type, $grid) {
-        if (class_exists('S4Y_Grid_Export_'.ucfirst($type))) {
-            $className = 'S4Y_Grid_Export_'.ucfirst($type);
+        if (isset(Grid::$export[$type]) &&
+            class_exists(Grid::$export[$type])) {
+            $className = Grid::$filter[$type];
         } elseif (class_exists($type)) {
             $className = $type;
         } else {
-            throw new Exception('Filter '.$type.' not defined!');
+            throw new \Exception('Filter '.$type.' not defined!');
         }
         $export = new $className($grid);
         return $export;

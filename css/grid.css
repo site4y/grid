@@ -123,6 +123,13 @@ a.s4y_grid_sort:hover .glyphicon-sort + sub {
     padding-left: 7px;
 }
 
+.s4y-grid thead {
+    position: sticky;
+    top: -10px;
+    background: #FFF;
+    z-index: 10;
+}
+
 .s4y-grid .filter-active {
     background-color: #00a7f2;
 }

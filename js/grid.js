@@ -248,6 +248,7 @@
                                 if (data.script) {
                                     $(data.script).appendTo($('body'));
                                 }
+
                             } else if (data.reload) {
                                 if (data.message) {
                                     $.S4Y.grid.showSuccessMessage($grid, data.message);

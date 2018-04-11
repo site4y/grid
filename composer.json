@@ -6,7 +6,7 @@
         "frontpack/composer-assets-plugin": "^0.9.3",
         "pdima88/php-assets": "^1.0",
         "nette/utils": "^2.5",
-        "zf1/zend-db": "^1.12"
+        "pdima88/php-twbshelper": "dev-master"
     },
     "license": "MIT",
     "authors": [
