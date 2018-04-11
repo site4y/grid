@@ -534,13 +534,13 @@ class Grid {
                         $content = '<input type="checkbox"' . ($val ? ' checked' : '') . ' disabled>';
                         break;
                     case 'datetimefull':
-                        $content = $val ? Use_Date::formatDateTime($val, false) : '';
+                        $content = $val ? self::formatDateTime($val, false) : '';
                         break;
                     case 'datetime':
-                        $content = $val ? Use_Date::formatDateTime($val) : '';
+                        $content = $val ? self::formatDateTime($val) : '';
                         break;
                     case 'date':
-                        $content = $val ? Use_Date::formatDate($val) : '';
+                        $content = $val ? self::formatDate($val) : '';
                         break;
                     /*case 'custom':
                         if (isset($col['func'])) {
@@ -1107,5 +1107,25 @@ class Grid {
         }
         return str_replace(['<script>','</script>'], '',
             str_replace('{returnUrl}', urlencode($this->url()), $text));
+    }
+
+    static $dateMonthNames = [
+        'января','февраля','марта','апреля','мая','июня',
+        'июля','августа','сентября','октября','ноября','декабря'
+    ];
+
+    static function formatDate($date = null)
+    {
+        if (!isset($date)) $date = time();
+        if (!is_numeric($date)) $date = strtotime($date);
+        $dt = getdate($date);
+        $m = self::$dateMonthNames[$dt['mon']-1];
+        return $dt['mday'] . ' ' . $m . ' ' . $dt['year'] . ' г.';
+    }
+
+    static function formatDateTime($date, $timeShort = true)
+    {
+        if (!is_numeric($date)) $date = strtotime($date);
+        return self::formatDate($date) .' '. date($timeShort ? 'H:i': 'H:i:s', $date);
     }
 }
