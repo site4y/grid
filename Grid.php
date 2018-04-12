@@ -6,6 +6,7 @@ use pdima88\php\Assets;
 use Nette\Utils\Html;
 use pdima88\twbsHelper\Glyphicon;
 use pdima88\twbsHelper\TwbsBtn;
+use Nette\Utils\Arrays;
 
 class Grid {
 
