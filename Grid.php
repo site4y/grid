@@ -404,7 +404,7 @@ class Grid {
                     case 'checkbox':
                         $input = Html::el('input')->type('checkbox');
                         if ($val) $input->checked(true);
-                        if ($col['onclick']) {
+                        if (isset($col['onclick']) && $col['onclick']) {
                             $input->onclick($col['onclick']);
                         } else {
                             $input->disabled(true);
