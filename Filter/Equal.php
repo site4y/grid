@@ -23,9 +23,11 @@ class Equal extends Filter
         $input->data('filter', $this->_name);
         if ($this->isActive()) $input->value($this->_value);
 
+        $clear = Html::el('span')->setClass('form-control-clear glyphicon glyphicon-remove');
+        if (!$this->isActive()) $clear->addClass('hidden');
+
         return Html::el('div')->addHtml(
-            $input)->addHtml(
-            Html::el('span')->setClass('form-control-clear glyphicon glyphicon-remove hidden'))
+            $input)->addHtml($clear)
         ->setClass('has-clear');
 
     }
