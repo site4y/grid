@@ -41,10 +41,20 @@ class Select extends Filter
             ->onchange('return $.S4Y.grid.filter(this);');
         $select->data('filter', $this->_name);
 
+        $selectedOption = null;
+
         foreach ($this->_options as $val => $option) {
             if ($val === '') $val = 'null';
+
+            if ($this->isActive() && $this->_value == $val) {
+                $selectedOption = $option;
+            }
+
             $select->addHtml(Html::el('option', $option)->value($val)
                 ->selected(isset($this->_value) && $this->_value == $val));
+        }
+        if ($selectedOption) {
+            $select->title($selectedOption);
         }
         return $select;
     }
@@ -55,6 +65,8 @@ class Select extends Filter
             if (isset($this->_where)) {
                 if (is_callable($this->_where)) {
                     return call_user_func($this->_where, $this);
+                } elseif (is_array($this->_where)) {
+                    return isset($this->_where) ? $this->_where[$this->_value]: '';
                 } else {
                     return sprintf($this->_where, $this->_value);
                 }
