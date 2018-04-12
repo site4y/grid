@@ -22,6 +22,7 @@ class DateRange extends Filter {
             $this->_value = $this->getRequestParam();
         }
         if (isset($column['filter-opens'])) $this->_opens = $column['filter-opens'];
+        if (isset($column['filterOpens'])) $this->_opens = $column['filterOpens'];
 
         Assets::add([
             'bootstrap-daterangepicker',
