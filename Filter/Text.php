@@ -74,10 +74,12 @@ class Text extends Filter
 
         if ($this->isActive()) $input->value($this->_value);
 
+        $clear = Html::el('span')->setClass('form-control-clear glyphicon glyphicon-remove')
+            ->filterId($this->_name);
+        if (!$this->isActive()) $clear->addClass('hidden');
+
         return Html::el('div')->addHtml(
-            $input.$dl)->addHtml(
-            Html::el('span')->setClass('form-control-clear glyphicon glyphicon-remove hidden')
-                ->filterId($this->_name))
+            $input.$dl)->addHtml($clear)
             ->addHtml(
             Html::el('a')->setClass('form-control-feedback glyphicon glyphicon-question-sign')
                 ->onclick('S4Y_grid_filter_text_help()')
