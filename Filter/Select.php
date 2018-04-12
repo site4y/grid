@@ -39,7 +39,7 @@ class Select extends Filter
             ->setClass("form-control input-sm")
             ->name('filter_'.$this->_name)
             ->onchange('return $.S4Y.grid.filter(this);');
-        $select->{'data-filter'} = $this->_name;
+        $select->data('filter', $this->_name);
 
         foreach ($this->_options as $val => $option) {
             if ($val === '') $val = 'null';

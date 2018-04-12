@@ -32,8 +32,8 @@ class DateRange extends Filter {
     function renderFilter()
     {
         $span =  Html::el('span')->style('font-size: 11px;');
-        $span->{'data-filter'} = $this->_name;
-        $span->{'data-empty'} = '';
+        $span->data('filter', $this->_name);
+        $span->data('empty', '');
         $div = Html::el('div')->id($this->_id)
                 ->setClass('form-control input-sm s4y-grid-filter-daterange')
                 ->style('overflow: hidden; cursor: pointer; text-overflow: ellipsis;white-space: nowrap')
@@ -44,7 +44,7 @@ class DateRange extends Filter {
                     Html::el('b')->setClass('caret')->style('float: right; margin-top: 7px'))
                 ->addHtml($span);
         $input = Html::el('input')->type('hidden')->name('filter_'.$this->_name);
-        $input->{'data-filter'} = $this->_name;
+        $input->data('filter', $this->_name);
         $input->id($this->_id.'_input');
         if ($this->isActive()) {
             if ($this->_value == 'NULL' || $this->_value == 'NOT NULL') {

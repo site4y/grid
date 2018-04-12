@@ -502,9 +502,9 @@ class Grid {
 
         $link->href = $this->url(['sort' => $sort]);
         $link->onclick = "return $.S4Y.grid.sort(this, '{$colId}')";
-        $link->{'data-column-id'} = $colId;
+        $link->data('column-id', $colId);
         $link->setClass('s4y_grid_sort');
-        if ($sort_order > 0) $link->appendAttribute('class', 'active');
+        if ($sort_order > 0) $link->addClass('active');
 
         if ($icon != 'sort') $link->addHtml(' '.
              Glyphicon::icon($icon)
@@ -638,7 +638,6 @@ class Grid {
     }
 
     public function _defaultSort() {
-        $sortOrder = [];
         $sort = [];
         if (is_array($this->options['sort'])) {
             foreach ($this->options['sort'] as $colId => $dir) {
@@ -729,13 +728,15 @@ class Grid {
         $table->setClass('table table-condensed table-bordered table-striped s4y-grid');
         $table->data('url', $this->options['url']);
         if ($this->options['ajax']) $table->{'data-ajax'} = $this->options['ajax'];
-        $table->{'data-current-url'} = $this->url();
+        $table->data('current-url', $this->url());
         if ($this->options['ajax']) {
-            $table->{'data-current-url-ajax'} = $this->url([], true);
-            $table->{'data-default-sort'} = $this->_defaultSort();
+            $table->data('current-url-ajax', $this->url([], true));
+            $table->data('default-sort', $this->_defaultSort());
         }
         $table->data('delete-url', $this->options['delete']);
-        if ($this->options['ajax-delete']) $table->{'data-delete-ajax-url'} = $this->options['ajax-delete'];
+        if ($this->options['ajax-delete']) {
+            $table->data('delete-ajax-url', $this->options['ajax-delete']);
+        }
 
         if ($this->options['group'] && isset($this->options['group']['delete'])) {
             $table->data('deletegroup-url', $this->options['group']['delete']);
@@ -934,7 +935,7 @@ class Grid {
         if ($this->options['add']) {
             $addBtn = TwbsBtn::a_success(Glyphicon::plus.'  Добавить',  's4y-grid-'.$this->_id.'-addbtn');
             $addBtn->href($this->replace($this->options['add']));
-            $addBtn->{'data-addurl'} = $this->options['add'];
+            $addBtn->data('addurl', $this->options['add']);
             return strval($addBtn);
         }
         return '';
@@ -956,19 +957,19 @@ class Grid {
                     $a = Html::el('a',$title)->href(
                         $this->appendSortAndFilterParams($this->replace(
                             $url, ['page' => $this->_pg->page])))
-                        ->{'class'}('s4y-grid-'.$this->_id.'-export');
-                    $a->{'data-url'} = $url;
+                        ->setClass('s4y-grid-'.$this->_id.'-export');
+                    $a->data('url', $url);
                     $ul[] = Html::el('li')->addHtml($a);
                 }
-                $btn->{'class'}('dropdown-toggle');
+                $btn->addClass('dropdown-toggle');
                 $btn->data('toggle', "dropdown");
                 $btn->addHtml(' '.Html::el('span', ['class' => 'caret']));
                 $div = Html::el('div', ['class' => 'btn-group'])->addHtml($btn. $ul);
                 return strval($div);
             } else {
-                $btn->href = $this->replace($this->options['export']);
-                $btn->{'data-url'} = $this->options['export'];
-                $btn->addClass('s4y-grid-'.$this->_id.'-export');
+                $btn->href($this->replace($this->options['export']))
+                    ->data('url', $this->options['export'])
+                    ->addClass('s4y-grid-'.$this->_id.'-export');
                 return strval($btn);
             }
         }

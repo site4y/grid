@@ -59,7 +59,7 @@ class Text extends Filter
         $input = Html::el('input')->type('text')
             ->name('filter_'.$this->_name)
             ->setClass("form-control input-sm");
-        $input->{'data-filter'} = $this->_name;
+        $input->data('filter', $this->_name);
 
         if ($this->dataList) {
             $input->list($this->dataListId);
