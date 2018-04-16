@@ -9,11 +9,11 @@ abstract class Export
     static function create($type, $grid) {
         if (isset(Grid::$export[$type]) &&
             class_exists(Grid::$export[$type])) {
-            $className = Grid::$filter[$type];
+            $className = Grid::$export[$type];
         } elseif (class_exists($type)) {
             $className = $type;
         } else {
-            throw new \Exception('Filter '.$type.' not defined!');
+            throw new \Exception('Export '.$type.' not defined!');
         }
         $export = new $className($grid);
         return $export;
