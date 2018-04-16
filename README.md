@@ -1,4 +1,4 @@
-# pdgrid
+# s4y/grid
 PHP Data Grid Widget using Bootstrap, Jquery and Zend_Db
 
 Компонент грид(таблица) предназначен для админки, для вывода списка элементов
@@ -9,7 +9,7 @@ PHP Data Grid Widget using Bootstrap, Jquery and Zend_Db
 Создайте грид, передав в конструктор необходимые параметры
 (см. ниже **Список параметров**)
 ```
-use pdima88\pdgrid\Grid;
+use s4y\grid\Grid;
 $grid = new Grid( <ассоциативный массив с параметрами> );
 ```
 и выведите грид в нужном месте страницы:

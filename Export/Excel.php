@@ -1,8 +1,8 @@
 <?php
 
-namespace pdima88\pdgrid\Export;
+namespace s4y\grid\Export;
 
-use pdima88\pdgrid\Export;
+use s4y\grid\Export;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 

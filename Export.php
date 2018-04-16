@@ -1,6 +1,6 @@
 <?php
 
-namespace pdima88\pdgrid;
+namespace s4y\grid;
 
 abstract class Export
 {

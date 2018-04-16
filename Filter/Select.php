@@ -1,8 +1,8 @@
 <?php
 
-namespace pdima88\pdgrid\Filter;
+namespace s4y\grid\Filter;
 
-use pdima88\pdgrid\Filter;
+use s4y\grid\Filter;
 use Nette\Utils\Html;
 
 class Select extends Filter

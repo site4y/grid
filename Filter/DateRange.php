@@ -1,11 +1,11 @@
 <?php
 
-namespace pdima88\pdgrid\Filter;
+namespace s4y\grid\Filter;
 
-use pdima88\pdgrid\Filter;
-use pdima88\php\Assets;
+use s4y\grid\Filter;
+use s4y\Assets;
 use Nette\Utils\Html;
-use pdima88\twbsHelper\Glyphicon;
+use s4y\twbshelper\Glyphicon;
 
 class DateRange extends Filter {
 
@@ -26,7 +26,7 @@ class DateRange extends Filter {
 
         Assets::add([
             'bootstrap-daterangepicker',
-            '/assets/pdima88/pdgrid/js/dateutils.js'
+            '/assets/s4y/grid/js/dateutils.js'
         ]);
     }
 

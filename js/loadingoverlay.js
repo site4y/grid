@@ -12,7 +12,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
         custom          : "",
         fade            : true,
         fontawesome     : "",
-        image           : "/assets/pdima88/pdgrid/img/loading.gif",
+        image           : "/assets/s4y/grid/img/loading.gif",
         imagePosition   : "center center",
         maxSize         : "32px",
         minSize         : "16px",

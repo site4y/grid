@@ -1,11 +1,11 @@
 <?php
 
-namespace pdima88\pdgrid;
+namespace s4y\grid;
 
-use pdima88\php\Assets;
+use s4y\Assets;
+use s4y\twbshelper\Glyphicon;
+use s4y\twbshelper\TwbsBtn;
 use Nette\Utils\Html;
-use pdima88\twbsHelper\Glyphicon;
-use pdima88\twbsHelper\TwbsBtn;
 use Nette\Utils\Arrays;
 
 class Grid {
@@ -13,15 +13,15 @@ class Grid {
     const ACTION_BTN_CLASS = 's4y-grid-action-btn';
 
     static $filter = [
-        'dateRange' => '\\pdima88\\pdgrid\\Filter\\DateRange',
-        'daterange' => '\\pdima88\\pdgrid\\Filter\\DateRange',
-        'date-range' => '\\pdima88\\pdgrid\\Filter\\DateRange',
-        'equal' => '\\pdima88\\pdgrid\\Filter\\Equal',
-        'select' => '\\pdima88\\pdgrid\\Filter\\Select',
-        'text' => '\\pdima88\\pdgrid\\Filter\\Text',
+        'dateRange' => '\\s4y\\grid\\Filter\\DateRange',
+        'daterange' => '\\s4y\\grid\\Filter\\DateRange',
+        'date-range' => '\\s4y\\grid\\Filter\\DateRange',
+        'equal' => '\\s4y\\grid\\Filter\\Equal',
+        'select' => '\\s4y\\grid\\Filter\\Select',
+        'text' => '\\s4y\\grid\\Filter\\Text',
     ];
     static $export = [
-        'excel' => '\\pdima88\\pdgrid\\Export\\Excel'
+        'excel' => '\\s4y\\grid\\Export\\Excel'
     ];
 
     protected $_id = '';
@@ -709,8 +709,8 @@ class Grid {
     public function render() {
 
         Assets::add(['bootstrap', 'eModal',
-            '/assets/pdima88/pdgrid/css/grid.css', '/assets/pdima88/pdgrid/js/grid.js',
-            '/assets/pdima88/pdgrid/js/loadingoverlay.js']);
+            '/assets/s4y/grid/css/grid.css', '/assets/s4y/grid/js/grid.js',
+            '/assets/s4y/grid/js/loadingoverlay.js']);
 
         //$table = '<div class="panel panel-default"><div class="panel-heading">'.
         //    $this->getAddBtn(). '</div>';
