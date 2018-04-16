@@ -85,7 +85,7 @@ class Grid {
 
         $this->_pg = new Paginator(
             ($this->_data !== false) ? $this->_data :
-                (Arrays::get($attr, 'select') ? $attr['select']->getAdapter() : \Zend_Db_Table::getDefaultAdapter()),
+                (Arrays::get($attr, 'select', false) ? $attr['select']->getAdapter() : \Zend_Db_Table::getDefaultAdapter()),
             null, $this->options['paging']);
 
         if ($this->options['paging'] || $this->options['footer']) {
