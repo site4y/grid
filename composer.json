@@ -6,7 +6,8 @@
         "frontpack/composer-assets-plugin": "^0.9.4",
         "s4y/assets": "^3.0",
         "nette/utils": "^2.5",
-        "s4y/twbshelper": "dev-master"
+        "s4y/twbshelper": "dev-master",
+        "s4y/paginator": "dev-master"
     },
     "license": "MIT",
     "authors": [

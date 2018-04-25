@@ -7,6 +7,7 @@ use s4y\twbshelper\Glyphicon;
 use s4y\twbshelper\TwbsBtn;
 use Nette\Utils\Html;
 use Nette\Utils\Arrays;
+use s4y\Paginator;
 
 class Grid {
 
@@ -31,6 +32,7 @@ class Grid {
     protected $_filters = array();
     protected $_classes = array();
     protected $_sql;
+    protected $_db;
     protected $_filterSql = null;
     protected $_filterParam = null;
     protected $_row = [];
@@ -75,7 +77,6 @@ class Grid {
         } elseif (isset($attr['select'])) {
             $sel = $attr['select'];
             $attr['sql'] = 'SELECT * FROM (' .$sel->assemble() . ') s WHERE {where}';
-            $attr['sqlCount'] = 'SELECT COUNT(*) FROM (' . $sel->assemble() . ') s WHERE {where}';
         }
         if (isset($attr['id'])) $this->_id = $attr['id'];
 
@@ -83,32 +84,21 @@ class Grid {
             $this->columns = $attr['columns'];
         }
 
-        $this->_pg = new Paginator(
-            ($this->_data !== false) ? $this->_data :
-                (Arrays::get($attr, 'select', false) ? $attr['select']->getAdapter() : \Zend_Db_Table::getDefaultAdapter()),
-            null, $this->options['paging']);
+        $page = Arrays::get($_REQUEST, 'page', 1);
 
-        if ($this->options['paging'] || $this->options['footer']) {
-            if ($this->_data === false) {
-                if (!isset($attr['sqlcount'])) {
-                    $countSql = $this->applyFilters('SELECT COUNT(*) FROM (' . $attr['sql'] . ') s4y_grid_select');
-                } else {
-                    $countSql = $this->applyFilters($attr['sqlcount']);
-                }
-                $this->_pg->queryCount($countSql);
-            } else {
-                $this->_pg->queryCount();
-            }
-        }
-        if ($this->_data === false) {
+        if ($this->_data !== false) {
+            $this->_pg = Paginator::fromArray($this->_data, $this->options['paging'], $page);
+        } else {
             $this->_sql = $this->applySort($this->applyFilters($attr['sql']));
+            $this->_db = Arrays::get($attr, 'select', false) ?
+                $attr['select']->getAdapter()
+                : \Zend_Db_Table::getDefaultAdapter();
+            $this->_pg = new Paginator(
+                $this->_db,
+                $this->_sql,
+                $this->options['paging'], $page);
         }
-
         $this->_rownum = $this->_pg->first ?: 1;
-
-        /*$this->_blocks['rows'] = '_rows';
-        $this->_blocks['paging'] = '_paging';
-        $this->_blocks['grid'] = '_grid';*/
     }
 
     protected $_deleteBtnTpl = null;
@@ -242,7 +232,7 @@ class Grid {
 
     public function body() {
         $body = '';
-        $rows = $this->_pg->fetchAll($this->_sql);
+        $rows = $this->_pg->fetchPage();
         $this->rows = $rows;
 
         $colCount = count($this->columns);
@@ -787,9 +777,13 @@ class Grid {
     public function export($type, $title = '', $filename = 'export', $full = true) {
         $export = Export::create($type, $this);
         if ($full) {
-            $rows = $this->_data ? $this->_data : \Zend_Db_Table::getDefaultAdapter()->fetchAll($this->_sql);
+            if ($this->_data !== false) {
+                $rows = $this->_data;
+            } else {
+                $rows = $this->_db->fetchAll($this->_sql);
+            }
         } else {
-            $rows = $this->_pg->fetchAll($this->_sql);
+            $rows = $this->_pg->fetchPage();
         }
         $export->export($filename, $title, $rows);
         exit;
