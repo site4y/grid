@@ -237,7 +237,8 @@ class Grid {
 
         $colCount = count($this->columns);
         if ($this->options['rownum']) $colCount++;
-        if ($this->options['edit'] !== '' || $this->options['delete'] !== '') $colCount++;
+        if ($this->options['edit'] !== '' || $this->options['delete'] !== '' ||
+            isset($this->options['actions']) && $this->options['actions']) $colCount++;
 
         if (empty($rows)) {
             $body = '<tr><td colspan="' . $colCount . '">Нет данных для отображения</td></tr>';
