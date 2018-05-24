@@ -10,6 +10,8 @@ class Text extends Filter
 {
     protected $dataList = null;
     protected $dataListId = null;
+    protected $placeholder = false;
+    protected $tooltip = '';
 
     static $dataListIds = [];
 
@@ -51,6 +53,18 @@ class Text extends Filter
                 $this->dataListId = 'filter_'.$this->_name.'_datalist'.(++$i);
             }
             self::$dataListIds[$this->dataListId] = true;
+        };
+
+        if (isset($column['filterPlaceholder'])) {
+            $this->placeholder = $column['filterPlaceholder'];
+        } elseif (isset($column['filter-placeholder'])) {
+            $this->placeholder = $column['filter-placeholder'];
+        }
+
+        if (isset($column['filterTooltip'])) {
+            $this->tooltip = $column['filterTooltip'];
+        } elseif (isset($column['filter-tooltip'])) {
+            $this->tooltip = $column['filter-tooltip'];
         }
     }
 
@@ -60,6 +74,12 @@ class Text extends Filter
             ->name('filter_'.$this->_name)
             ->setClass("form-control input-sm");
         $input->data('filter', $this->_name);
+        if ($this->placeholder) {
+            $input->placeholder($this->placeholder);
+        }
+        if ($this->tooltip) {
+            $input->title($this->tooltip);
+        }
 
         if ($this->dataList) {
             $input->list($this->dataListId);
