@@ -66,7 +66,7 @@ class Select extends Filter
                 if (is_callable($this->_where)) {
                     return call_user_func($this->_where, $this);
                 } elseif (is_array($this->_where)) {
-                    return isset($this->_where) ? $this->_where[$this->_value]: '';
+                    return isset($this->_where[$this->_value]) ? $this->_where[$this->_value]: '';
                 } else {
                     return sprintf($this->_where, $this->_value);
                 }

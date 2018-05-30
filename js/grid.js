@@ -379,7 +379,7 @@
                 var sortStr = this.getUrlParameter(currentUrl, 'sort');
                 if (sortStr === undefined || sortStr === true) sortStr = $grid.attr('data-default-sort');
                 if (sortStr === undefined) sortStr = '';
-                var multisort = $grid.attr('data-multisort');
+                var multisort = ($grid.attr('data-multisort') == 'true');
 
                 var sortCols = {},
                     sortOrder = [];
@@ -512,7 +512,11 @@
                     if ($f.is('input[type="checkbox"]')) {
                         $f.prop('checked', false);
                     } else if ($f.is('select')) {
-                        $f.prop('selectedIndex', 0);
+                        if ($f.prop('multiple')) {
+                            $f.val([]); //find('option').prop('selected', false);
+                        } else {
+                            $f.prop('selectedIndex', 0);
+                        }
                     } else if ($f.is('input') || $f.is('textarea')) {
                         $f.val('');
                     } else {
@@ -535,6 +539,8 @@
                         filterStr += $f.attr('data-filter') + ':';
                         if ($.isNumeric(v)) {
                             filterStr += v
+                        } else if ($.isArray(v)) {
+                            filterStr += v.join(',');
                         } else {
                             filterStr += "'" + v.replace(/'/g, "\\'") + "'";
                         }

@@ -20,6 +20,7 @@ class Grid {
         'equal' => '\\s4y\\grid\\Filter\\Equal',
         'select' => '\\s4y\\grid\\Filter\\Select',
         'text' => '\\s4y\\grid\\Filter\\Text',
+        'multiselect' => '\\s4y\\grid\\Filter\\Multiselect'
     ];
     static $export = [
         'excel' => '\\s4y\\grid\\Export\\Excel'
@@ -590,16 +591,7 @@ class Grid {
             }
         }
 
-        // Apply sort params for non-sortable columns
-        if (is_array($this->options['sort'])) {
-            foreach ($this->options['sort'] as $colId => $dir) {
-                if (isset($_REQUEST['sort'])
-                    && isset($this->columns[$colId]['sort'])
-                ) continue;
 
-                $this->_sort[$colId] = (($dir == 'desc' || $dir == 'DESC') ? 'DESC' : 'ASC');
-            }
-        }
 
         if (isset($_REQUEST['sort'])) {
             $sort = explode(';',$_REQUEST['sort']);
@@ -617,7 +609,22 @@ class Grid {
                     if (!$this->options['multisort']) break;
                 }
             }
-        } else {
+        }
+
+        // Apply sort params for non-sortable columns
+        if (is_array($this->options['sort'])) {
+            foreach ($this->options['sort'] as $colId => $dir) {
+                if (isset($_REQUEST['sort'])
+                    && isset($this->columns[$colId]['sort'])
+                ) continue;
+
+                $this->_sort[$colId] = (($dir == 'desc' || $dir == 'DESC') ? 'DESC' : 'ASC');
+            }
+        }
+
+
+
+        /*else {
             // Default sort params for sortable columns
             if (is_array($this->options['sort'])) {
                 foreach ($this->options['sort'] as $colId => $dir) {
@@ -627,7 +634,7 @@ class Grid {
                     }
                 }
             }
-        }
+        }*/
     }
 
     public function _defaultSort() {
