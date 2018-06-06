@@ -274,7 +274,7 @@
                             if (errMsg) {
                                 window.setTimeout(function() {
                                     eModal.alert(errMsg, 'Ошибка!');
-                                }, 200);
+                                }, 500);
 
                             }
                         }
