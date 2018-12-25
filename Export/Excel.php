@@ -34,7 +34,12 @@ class Excel extends Export {
                 $c++;
             }
             foreach ($this->_grid->columns as $colId => &$col) {
-                $sheet->setCellValueByColumnAndRow($c, $i+3, isset($row[$colId]) ? $row[$colId] : '');
+                $value = isset($row[$colId]) ? $row[$colId] : '';
+                if (isset($col['format']) && is_array($col['format']) && isset($col['format'][$value])) {
+                    $value = $col['format'][$value];
+                }
+                $value = strip_tags($value);
+                $sheet->setCellValueByColumnAndRow($c, $i+3, $value);
                 $c++;
             }
             unset($col);
