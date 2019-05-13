@@ -23,7 +23,8 @@ class Grid {
         'multiselect' => '\\s4y\\grid\\Filter\\Multiselect'
     ];
     static $export = [
-        'excel' => '\\s4y\\grid\\Export\\Excel'
+        'excel' => '\\s4y\\grid\\Export\\Excel',
+        'csv' => '\\s4y\\grid\\Export\\Csv',
     ];
 
     protected $_id = '';
@@ -864,7 +865,7 @@ class Grid {
             $ul[] = $this->_renderPageLink($page + 1, $url, 'Вперед &raquo;');
         }
 
-        return strval(Html::el('nav', ['class' => "text-center"])->addHtml($ul)
+        return strval(Html::el('div', ['class' => "text-center"])->addHtml($ul)
             ->id('s4y_grid_'.$this->_id.'_paging'));
     }
 
