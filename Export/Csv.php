@@ -32,10 +32,11 @@ class Csv extends Export {
         $csv = self::quoteCsv($title).str_pad('',$c-1,';').PHP_EOL.$csv.PHP_EOL;
 
         foreach ($data as $i => $row) {
+            $first = true;
             if ($this->_grid->options['rownum']) {
                 $csv .= $i+1;
+                $first = false;
             }
-            $first = true;
             foreach ($this->_grid->columns as $colId => &$col) {
                 $value = isset($row[$colId]) ? $row[$colId] : '';
                 if (isset($col['format']) && is_array($col['format']) && isset($col['format'][$value])) {
