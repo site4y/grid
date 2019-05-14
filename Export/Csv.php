@@ -53,6 +53,8 @@ class Csv extends Export {
                 } else {
                     if (isset($value) && $value !== '') {
                         $cell = self::quoteCsv($value);
+                    } else {
+                        $cell = '';
                     }
                 }
                 if (!$first) {
